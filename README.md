@@ -17,18 +17,25 @@ A simple utility to help with designing wooden drawers, and laying out the piece
   - Wastage/unused wood on the original sheet (pink)
 - Calculates a (fairly) accurate summary
 
-## Weaknesses
+## Limitations/weaknesses
 
+- Only provides a design for a single method of drawer construction:
+  - Full-sized side pieces, locating in a rabbet cut into both sides of front and back pieces
+  - All vertical pieces have a rabbet cut into their bottom edge, into which a full thickness base piece locates
+  - Therefore, no option for a thinner base piece in a slot
+  - Also assumes that a separate (usually slightly larger) cosmetic face piece will probably be later added to the front - and this piece is _not_ included in the design
 - The rectangle fitting algorithm is decent, but not optimal
   - It 'thinks' horizontally, so two vertically adjacent similarly-sized areas will not bbe considered as a single area for subsequent usage
-- Only lays the pieces out on a single wooden sheet; if you are using smaller pieces in the real world (e.g. to account for availability or CNC bed size) you'll need to make the sheet larger, and then subdivide things yourself.
+- Only lays the pieces out on a single wooden sheet; if you are using smaller pieces in the real world (e.g. to account for availability or CNC bed size) you'll need to make the virtual sheet larger, and then subdivide things yourself.
 - Will warn if all pieces don't fit onto the current sheet, but won't do anything further.
 - The sizing of left-over spaces isn't always perfect; it's good enough to use for now, though.
 - My code. I'm not a professional 🙂
 
 ## Future developoments
 
-Maybe, but not guaranteed. If you've got a suggestion, please get in touch.
+Maybe, but not guaranteed. DXF (and maybe STL?) export would be nice.
+
+If you've got a suggestion, please get in touch.
 
 ## Licence and acknowledgements
 
