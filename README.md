@@ -23,7 +23,8 @@ A simple utility to help with designing wooden drawers, and laying out the piece
   - It 'thinks' horizontally, so two vertically adjacent similarly-sized areas will not bbe considered as a single area for subsequent usage
 - Only lays the pieces out on a single wooden sheet; if you are using smaller pieces in the real world (e.g. to account for availability or CNC bed size) you'll need to make the sheet larger, and then subdivide things yourself.
 - Will warn if all pieces don't fit onto the current sheet, but won't do anything further.
-- The space-sizing isn't always perfect; it's good enough to use for now, though.
+- The sizing of left-over spaces isn't always perfect; it's good enough to use for now, though.
+- My code. I'm not a professional 🙂
 
 ## Future developoments
 
