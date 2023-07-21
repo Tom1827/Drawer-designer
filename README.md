@@ -27,9 +27,10 @@ A simple utility to help with designing wooden drawers, and laying out the piece
 
 ## Future developoments
 
-- Maybe, but not guaranteed. If you've got a suggestion, please get in touch.
+Maybe, but not guaranteed. If you've got a suggestion, please get in touch.
 
 ## Licence and acknowledgements
 
 Coded/designed by Tom Moore. Licensed under the [GNU GPL v3 License](https://www.gnu.org/licenses/gpl-3.0.en.html).
+
 Rectangle packing code modified from code shared by [Volodymyr Agafonkin](https://observablehq.com/@mourner/simple-rectangle-packing).
