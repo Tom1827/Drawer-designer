@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>🔨 &nbsp&nbspDrawer designer</title>
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css"
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>Drawer designer</h2>
+      <form>
+        <div class="row">
+          <div class="column">
+            <label>
+              Drawer width (mm):
+              <input
+                type="text"
+                id="drawer_width"
+                name="drawer_width"
+                value="400"
+                required
+              />
+            </label>
+          </div>
+          <div class="column">
+            <label>
+              Drawer height (mm):
+              <input
+                type="text"
+                id="drawer_height"
+                name="drawer_height"
+                value="120"
+                required
+              />
+            </label>
+          </div>
+          <div class="column">
+            <label>
+              Drawer depth (mm):
+              <input
+                type="text"
+                id="drawer_depth"
+                name="drawer_depth"
+                value="300"
+                required
+              />
+            </label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="column">
+            <label>
+              Material width (mm):
+              <input
+                type="text"
+                id="material_width"
+                name="material_width"
+                value="1200"
+                required
+              />
+            </label>
+          </div>
+          <div class="column">
+            <label>
+              Material height (mm):
+              <input
+                type="text"
+                id="material_height"
+                name="material_height"
+                value="600"
+                required
+              />
+            </label>
+          </div>
+          <div class="column">
+            <label>
+              Material thickness (mm):
+              <input
+                type="text"
+                id="material_thickness"
+                name="material_thickness"
+                value="10"
+                required
+              />
+            </label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="column">
+            <label>
+              Number of drawers (n):
+              <input type="text" id="count" name="count" value="2" required />
+            </label>
+          </div>
+
+          <div class="column">
+            <label>
+              Blade/cut width (mm):
+              <input
+                type="text"
+                id="cut_width"
+                name="cut_width"
+                value="2.5"
+                required
+              />
+            </label>
+          </div>
+          <div class="column"></div>
+        </div>
+
+        <div class="row">
+          <div class="column">
+            <input
+              type="radio"
+              value="inner_only"
+              name="arrange"
+              id="inner_only"
+              checked
+            />
+            <label class="label-inline" for="inner_only"
+              >Inner cut margins</label
+            >
+            <br />
+
+            <input
+              type="radio"
+              value="no_margin"
+              name="arrange"
+              id="no_margin"
+            />
+            <label class="label-inline" for="no_margin">No margin</label>
+          </div>
+
+          <div class="column">
+            <input
+              type="checkbox"
+              value="base"
+              name="rotate"
+              id="rotate_base"
+            />
+            <label class="label-inline" for="rotate_base">Base</label>
+            <br />
+            <input
+              type="checkbox"
+              value="sides"
+              name="rotate"
+              id="rotate_sides"
+            />
+            <label class="label-inline" for="rotate_sides">Sides</label>
+            <br />
+            <input
+              type="checkbox"
+              value="front & back"
+              name="rotate"
+              id="rotate_fb"
+            />
+            <label class="label-inline" for="rotate_fb">Front & back</label>
+          </div>
+          <div class="column">
+            <button type="button" class="button-primary" onclick="main()">
+              Update
+            </button>
+          </div>
+        </div>
+      </form>
+      
+    </div>
+    <h4 id="message"></h4>
+    <canvas id="cvs" width="1500" height="3000"></canvas>
+
+      <div class="container">
+        Designed by Tom Moore</a>. Licensed under the<a href="https://www.gnu.org/licenses/gpl-3.0.en.html" rel="noopener" target="_blank"> GNU GPL v3 License</a>.
+        <br>
+        Modified rectangle packing code based on code shared by <a href="https://observablehq.com/@mourner/simple-rectangle-packing">Volodymyr Agafonkin</a>.
+      </div>
+      <script src="1.js"></script>
+  </body>
+</html>
