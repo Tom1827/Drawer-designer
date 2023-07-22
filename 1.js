@@ -141,10 +141,10 @@ function draw_results(result) {
     canvas.width / result.material.w
   );
 
-  // ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
 
   ctx.fillStyle = "#4444ff";
-  ctx.fillRect(0, 0, result.material.w * s, result.material.h * s);
+  ctx.fillRect(0, 0, result.material.w * s, result.material.h * s);  // draw blue background for area used
 
   result.packed.forEach((e) => {
     r(e, s, "#eeeeee", ctx, result.material);
