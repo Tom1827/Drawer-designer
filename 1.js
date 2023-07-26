@@ -1,3 +1,9 @@
+import * as THREE from "three";
+import { OrbitControls } from "three/orbit";
+import { STLExporter } from "three/stl";
+
+var scene = new THREE.Scene();
+
 function main() {
   var drawer_width = parseInt(document.getElementById("drawer_width").value);
   var drawer_depth = parseInt(document.getElementById("drawer_depth").value);
@@ -16,7 +22,7 @@ function main() {
     document.getElementById("material_height").value
   );
 
-  var cut_width = parseInt(document.getElementById("cut_width").value);
+  var cut_width = parseFloat(document.getElementById("cut_width").value);
 
   let arrangement = document.querySelector(
     'input[name="arrange"]:checked'
@@ -55,7 +61,7 @@ function main() {
     t: parseInt(material_thickness),
   };
 
-  boxes = [];
+  var boxes = [];
 
   for (var c = 1; c <= count; c++) {
     // base - fits into a rabbet on all upright pieces, so needs to be
@@ -103,15 +109,16 @@ function main() {
   }
 
   // ===== Run the fitting algorithm =====
-  result = fit(boxes, material, inner_margin);
+  var result = fit(boxes, material, inner_margin);
+  var temp;
 
   // Update page with results
-  document.getElementById("message").innerHTML = `${(_ =
+  document.getElementById("message").innerHTML = `${(temp =
     result.packed.length == boxes.length
       ? ""
       : "<b style='color:#8B0000'>Only ")}${result.packed.length}/${
     boxes.length
-  } elements are included in this layout${(_ =
+  } elements are included in this layout${(temp =
     result.packed.length == boxes.length ? "" : "</b>")} which starts with ${
     result.start_area
   } cm² and leaves ~${result.waste_area} cm², or ~${
@@ -120,6 +127,7 @@ function main() {
 
   // Draw results on the canvas
   draw_results(result);
+  render_3d(result, material);
 }
 
 // =
@@ -138,6 +146,8 @@ function draw_results(result) {
   );
 
   const x_offset = (window.innerWidth - result.material.w * scale) / 2;
+
+  canvas.height = result.material.h * scale;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
 
@@ -165,11 +175,11 @@ function r(e, s, fill, ctx, material, x_offset) {
   ctx.lineWidth = 1;
   ctx.strokeStyle = "#111111";
 
-  xs = parseInt(e.x * s);
-  ys = parseInt(e.y * s);
-  ws = parseInt(e.w * s);
-  hs = parseInt(e.h * s);
-  ms = material.t * s;
+  let xs = parseInt(e.x * s);
+  let ys = parseInt(e.y * s);
+  let ws = parseInt(e.w * s);
+  let hs = parseInt(e.h * s);
+  let ms = material.t * s;
 
   // rectangles
   ctx.fillRect(xs + x_offset, ys, ws, hs);
@@ -345,4 +355,152 @@ function fit(boxes, material, inner_margin) {
     waste_perecentage,
   };
 }
+
 //
+// =
+// ======== 3D render
+function render_3d(result, material) {
+  // var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(1, 1200 / 800, 0.1, 1000000);
+  var renderer = new THREE.WebGLRenderer({
+    canvas: cvs_3d,
+    antialias: true,
+    logarithmicDepthBuffer: true,
+  });
+  const exporter = new STLExporter();
+  const controls = new OrbitControls(camera, renderer.domElement);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  directionalLight.position.set(250, 500, 200);
+  scene.add(directionalLight);
+
+  renderer.setSize(1200, 800);
+
+  const texture = new THREE.TextureLoader().load("./wood-texture.jpg");
+
+  result.packed.forEach((e) => {
+    console.log(e);
+
+    // First part
+    const first_part_geometry = new THREE.BoxGeometry(e.w, e.h, material.t / 2);
+
+    first_part_geometry.translate(e.x + e.w / 2, -e.y - e.h / 2, 0);
+    var item_material = new THREE.MeshBasicMaterial({ color: 0x77ff77 });
+    var item = new THREE.Mesh(first_part_geometry, item_material);
+    scene.add(item);
+    console.log(e.w, e.h, material.t / 2, e.x, -e.y);
+    console.log(first_part_geometry);
+
+    // Second part, to account for rabbet geometry
+
+    var second_part = {
+      width: e.w,
+      height: e.h,
+      thickness: material.t / 2,
+    };
+
+    let x_translate = 0;
+    let y_translate = 0;
+
+    if (e.rabbets) {
+      // rabbets
+      // 0,1,2,3: top, right, bottom, left
+
+      if (e.rotation == 0) {
+        if (e.rabbets.includes("0")) {
+          second_part.height -= material.t;
+          // y_translate += material.t;
+        }
+        if (e.rabbets.includes("1")) {
+          second_part.width -= material.t;
+        }
+        if (e.rabbets.includes("2")) {
+          second_part.height -= material.t;
+          y_translate -= material.t / 2;
+        }
+        if (e.rabbets.includes("3")) {
+          second_part.width -= material.t;
+          x_translate = 0; //material.t;
+        }
+      }
+      // if (e.rotation == 90) {
+      //   if (e.rabbets.includes("1")) {
+      //     ctx.fillRect(xs + x_offset, ys, ws, ms);
+      //   }
+      //   if (e.rabbets.includes("2")) {
+      //     ctx.fillRect(xs + ws - ms + x_offset, ys, ms, hs);
+      //   }
+      //   if (e.rabbets.includes("3")) {
+      //     ctx.fillRect(xs + x_offset, ys + hs - ms, ws, ms);
+      //   }
+      //   if (e.rabbets.includes("0")) {
+      //     ctx.fillRect(xs + x_offset, ys, ms, hs);
+      //   }
+      // }
+    }
+
+    var second_part_geometry = new THREE.BoxGeometry(
+      second_part.width,
+      second_part.height,
+      second_part.thickness
+    );
+
+    second_part_geometry.translate(
+      e.x + e.w / 2 + x_translate,
+      -e.y - e.h / 2 - y_translate,
+      second_part.thickness
+    );
+
+    // e.x + e.w / 2, -e.y - e.h / 2, 0
+
+    var item_material = new THREE.MeshBasicMaterial({ map: texture });
+    var item = new THREE.Mesh(second_part_geometry, item_material);
+    scene.add(item);
+  });
+
+  var test = new THREE.BoxGeometry(100, 100, 10);
+
+  camera.position.z = 100000;
+
+  var render = function () {
+    requestAnimationFrame(render);
+    controls.update();
+    renderer.render(scene, camera);
+  };
+
+  render();
+
+  document.getElementById("save_stl_button").style.visibility = "visible";
+}
+
+function exportASCII() {
+  const exporter = new STLExporter();
+  const result = exporter.parse(scene);
+  saveString(result);
+}
+
+function save(blob) {
+  const link = document.createElement("a");
+  link.style.display = "none";
+  document.body.appendChild(link);
+
+  link.href = URL.createObjectURL(blob);
+  link.download = `drawer_design_${Date.now().toString()}.stl`;
+  link.click();
+}
+
+function saveString(text, filename) {
+  save(new Blob([text], { type: "text/plain" }), filename);
+}
+
+window.addEventListener("load", function () {
+  document
+    .querySelector("#update_button")
+    .addEventListener("click", function () {
+      main();
+    });
+  document
+    .querySelector("#save_stl_button")
+    .addEventListener("click", function () {
+      exportASCII();
+    });
+});

@@ -18,6 +18,19 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css"
     />
+    <script type="importmap">
+			{
+				"imports": {
+					"three": "https://unpkg.com/three@0.154.0/build/three.module.js",
+          "three/orbit": "https://unpkg.com/three@0.148.0/examples/jsm/controls/OrbitControls.js",
+          "three/stl": "https://unpkg.com/three@0.148.0/examples/jsm/exporters/STLExporter.js",
+          "three/obj": "https://unpkg.com/three@0.148.0/examples/jsm/exporters/OBJExporter.js"
+				}
+			}
+		</script>
+
+    <script src="1.js" type="module"></script>
+
   </head>
 
   <body>
@@ -174,8 +187,11 @@
             <label class="label-inline" for="rotate_fb">Rotate front & back</label>
           </div>
           <div class="column">
-            <button type="button" class="button-primary" onclick="main()">
+            <button type="button" class="button-primary" id="update_button">
               Update
+            </button>
+            <button type="button" class="button-secondary" id="save_stl_button" style="visibility: hidden;">
+              Save STL...
             </button>
           </div>
         </div>
@@ -183,13 +199,15 @@
       
     </div>
     <h4 id="message" style="text-align: center"></h4>
+
     <canvas id="cvs" width="1500" height="3000"></canvas>
+
+    <canvas id="cvs_3d" width="1200" height="800" myattr="myattr"></canvas>
 
       <div class="container">
         Designed by Tom Moore</a>. Licensed under the<a href="https://www.gnu.org/licenses/gpl-3.0.en.html" rel="noopener" target="_blank"> GNU GPL v3 License</a>.
         <br>
         Rectangle packing code modified from code originally shared by <a href="https://observablehq.com/@mourner/simple-rectangle-packing">Volodymyr Agafonkin</a>.
       </div>
-      <script src="1.js"></script>
   </body>
 </html>
