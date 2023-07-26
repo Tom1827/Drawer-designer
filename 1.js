@@ -7,14 +7,16 @@ function main() {
   var material_thickness = parseInt(
     document.getElementById("material_thickness").value
   );
+
   var material_width = parseInt(
     document.getElementById("material_width").value
   );
+
   var material_height = parseInt(
     document.getElementById("material_height").value
   );
+
   var cut_width = parseInt(document.getElementById("cut_width").value);
-  // var arrangement = document.getElementById("arrange").value;
 
   let arrangement = document.querySelector(
     'input[name="arrange"]:checked'
@@ -24,24 +26,24 @@ function main() {
   let rotate_sides = document.querySelector("#rotate_sides").checked ? 90 : 0;
   let rotate_fb = document.querySelector("#rotate_fb").checked ? 90 : 0;
 
-  var outer_margin;
+  // var outer_margin;
   var inner_margin;
 
   switch (arrangement) {
     case "no_margin": {
-      outer_margin = 0;
+      // outer_margin = 0;
       inner_margin = 0;
       break;
     }
 
     case "inner_only": {
-      outer_margin = 0;
+      // outer_margin = 0;
       inner_margin = cut_width;
       break;
     }
 
     case "inner_outer": {
-      outer_margin = cut_width;
+      // outer_margin = cut_width;
       inner_margin = cut_width;
       break;
     }
@@ -60,8 +62,6 @@ function main() {
     // smaller in both dimensions by one full material thickness
 
     boxes.push({
-      // w: Math.max(drawer_width, drawer_depth) - material.t,
-      // h: Math.min(drawer_width, drawer_depth) - material.t,
       w:
         rotate_base == 0
           ? drawer_width - material.t
@@ -79,8 +79,6 @@ function main() {
     // - full size of relevant dimensions
     // - rabbet on both sides and bottom
     let sides = {
-      // w: Math.max(drawer_height, drawer_depth),
-      // h: Math.min(drawer_height, drawer_depth),
       w: rotate_sides == 0 ? drawer_depth : drawer_height,
       h: rotate_sides == 0 ? drawer_height : drawer_depth,
       label: c + " / side",
@@ -94,8 +92,6 @@ function main() {
     // - fit into rabbet on sides, so smaller width by one full material thickness
     // - rabbet on bottom edge
     let fb = {
-      // w: Math.max(drawer_height, drawer_width) - material.t,
-      // h: Math.min(drawer_height, drawer_width),
       w: rotate_fb == 0 ? drawer_width - material.t : drawer_height,
       h: rotate_fb == 0 ? drawer_height : drawer_width - material.t,
       label: c + " / front-back",
@@ -106,7 +102,7 @@ function main() {
     boxes.push(fb);
   }
 
-  // ===== run the fitting algorithm =====
+  // ===== Run the fitting algorithm =====
   result = fit(boxes, material, inner_margin);
 
   // Update page with results
@@ -118,9 +114,9 @@ function main() {
   } elements are included in this layout${(_ =
     result.packed.length == boxes.length ? "" : "</b>")} which starts with ${
     result.start_area
-  } cm² and wastes ~${result.waste_area} cm², or ~${
+  } cm² and leaves ~${result.waste_area} cm², or ~${
     result.waste_perecentage
-  }%.`;
+  }% unused.`;
 
   // Draw results on the canvas
   draw_results(result);
@@ -136,28 +132,35 @@ function draw_results(result) {
   ctx.canvas.width = window.innerWidth;
   ctx.canvas.height = window.innerWidth;
 
-  let s = Math.min(
+  const scale = Math.min(
     canvas.height / result.material.h,
     canvas.width / result.material.w
   );
 
+  const x_offset = (window.innerWidth - result.material.w * scale) / 2;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
 
   ctx.fillStyle = "#4444ff";
-  ctx.fillRect(0, 0, result.material.w * s, result.material.h * s);  // draw blue background for area used
+  ctx.fillRect(
+    x_offset,
+    0,
+    result.material.w * scale,
+    result.material.h * scale
+  ); // draw blue background for area used
 
   result.packed.forEach((e) => {
-    r(e, s, "#eeeeee", ctx, result.material);
+    r(e, scale, "#eeeeee", ctx, result.material, x_offset);
   });
 
   result.spaces.forEach((e) => {
-    r(e, s, "rgba(255, 100, 100, 0.5)", ctx, result.material);
+    r(e, scale, "rgba(255, 100, 100, 0.5)", ctx, result.material, x_offset);
   });
 }
 
 // =
 // ========= Draw an element of the drawer or space =========
-function r(e, s, fill, ctx, material) {
+function r(e, s, fill, ctx, material, x_offset) {
   ctx.fillStyle = fill;
   ctx.lineWidth = 1;
   ctx.strokeStyle = "#111111";
@@ -169,21 +172,21 @@ function r(e, s, fill, ctx, material) {
   ms = material.t * s;
 
   // rectangles
-  ctx.fillRect(xs, ys, ws, hs);
-  ctx.strokeRect(xs, ys, ws, hs);
+  ctx.fillRect(xs + x_offset, ys, ws, hs);
+  ctx.strokeRect(xs + x_offset, ys, ws, hs);
 
   //label
   if (e.label) {
     ctx.fillStyle = "#000000";
     ctx.font = "14px Arial";
-    ctx.fillText(e.label, xs + ms + 1, ys + ms + 14);
+    ctx.fillText(e.label, xs + ms + 1 + x_offset, ys + ms + 14);
     ctx.font = "11px Arial";
-    ctx.fillText(`${e.w}mm x ${e.h}mm`, xs + ms + 1, ys + ms + 27);
+    ctx.fillText(`${e.w}mm x ${e.h}mm`, xs + ms + 1 + x_offset, ys + ms + 27);
   } else {
     //diagonal line
     ctx.beginPath();
-    ctx.moveTo(xs, ys);
-    ctx.lineTo((e.w + e.x) * s, (e.h + e.y) * s);
+    ctx.moveTo(xs + x_offset, ys);
+    ctx.lineTo((e.w + e.x) * s + x_offset, (e.h + e.y) * s);
     ctx.stroke();
   }
 
@@ -193,30 +196,30 @@ function r(e, s, fill, ctx, material) {
 
     if (e.rotation == 0) {
       if (e.rabbets.includes("0")) {
-        ctx.fillRect(xs, ys, ws, ms);
+        ctx.fillRect(xs + x_offset, ys, ws, ms);
       }
       if (e.rabbets.includes("1")) {
-        ctx.fillRect(xs + ws - ms, ys, ms, hs);
+        ctx.fillRect(xs + ws - ms + x_offset, ys, ms, hs);
       }
       if (e.rabbets.includes("2")) {
-        ctx.fillRect(xs, ys + hs - ms, ws, ms);
+        ctx.fillRect(xs + x_offset, ys + hs - ms, ws, ms);
       }
       if (e.rabbets.includes("3")) {
-        ctx.fillRect(xs, ys, ms, hs);
+        ctx.fillRect(xs + x_offset, ys, ms, hs);
       }
     }
     if (e.rotation == 90) {
       if (e.rabbets.includes("1")) {
-        ctx.fillRect(xs, ys, ws, ms);
+        ctx.fillRect(xs + x_offset, ys, ws, ms);
       }
       if (e.rabbets.includes("2")) {
-        ctx.fillRect(xs + ws - ms, ys, ms, hs);
+        ctx.fillRect(xs + ws - ms + x_offset, ys, ms, hs);
       }
       if (e.rabbets.includes("3")) {
-        ctx.fillRect(xs, ys + hs - ms, ws, ms);
+        ctx.fillRect(xs + x_offset, ys + hs - ms, ws, ms);
       }
       if (e.rabbets.includes("0")) {
-        ctx.fillRect(xs, ys, ms, hs);
+        ctx.fillRect(xs + x_offset, ys, ms, hs);
       }
     }
   }
@@ -240,10 +243,6 @@ function fit(boxes, material, inner_margin) {
 
   // sort the boxes for insertion by height, descending
   boxes.sort((a, b) => b.h - a.h);
-
-  // aim for a squarish resulting container,
-  // slightly adjusted for sub-100% space utilization
-  // const startWidth = Math.max(Math.ceil(Math.sqrt(area / 0.95)), maxWidth);
 
   // start with a single empty space, unbounded at the bottom
   const spaces = [{ x: 0, y: 0, w: material.w, h: material.h }];
