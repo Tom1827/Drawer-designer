@@ -17,6 +17,7 @@ A simple utility to help with designing wooden drawers, and in particular laying
   - Wastage/unused wood on the original sheet (pink)
 - Calculates a (fairly accurate) summary
 - Allows the user to experiement with piece rotation to optimise layout beyond that offered by the algorithm
+- ***Includes an experimental 3D visualisation, and the ability to export an STL file!***
 
 ## Limitations/weaknesses
 
@@ -34,7 +35,7 @@ A simple utility to help with designing wooden drawers, and in particular laying
 
 ## Future developoments
 
-Maybe, but not guaranteed. DXF (and maybe STL?) export would be nice.
+Maybe, but not guaranteed.
 
 If you've got a suggestion, please get in touch.
 
