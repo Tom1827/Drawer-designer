@@ -26,11 +26,11 @@ A simple utility to help with designing wooden drawers, and in particular laying
   - All vertical pieces have a rabbet cut into their bottom edge, into which a full thickness base piece locates
   - Therefore, no option for a thinner base piece in a slot
   - Also assumes that a separate (usually slightly larger) cosmetic face piece will probably be later added to the front - and this piece is _not_ included in the design
-- The rectangle fitting algorithm is decent, but not optimal
+- The rectangle fitting algorithm is decent, but not optimal:
   - It 'thinks' horizontally, so two vertically adjacent similarly-sized areas will not be considered as a single area for subsequent usage
-- Only lays the pieces out on a single wooden sheet; if you are using smaller pieces in the real world (e.g. to account for availability or CNC bed size) you may need to make the virtual sheet larger in one dimension, and then subdivide things yourself.
-- Will warn if all pieces don't fit onto the current sheet, but won't do anything further.
-- The sizing of left-over spaces isn't always perfect; it's good enough to use for now, though.
+  - The sizing of left-over spaces isn't always perfect, and it sometimes does stupid things; it's *usually* good enough to use for now, though.
+  - Only lays the pieces out on a single wooden sheet; if you are using smaller pieces in the real world (e.g. to account for availability or CNC bed size) you may need to make the virtual sheet larger in one dimension, and then subdivide things yourself.
+  - Will warn if all pieces don't fit onto the current sheet, but won't do anything further.
 - My code. I'm not a professional 🙂
 
 ## Future developoments
