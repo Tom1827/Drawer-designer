@@ -32,24 +32,15 @@ function main() {
   let rotate_sides = document.querySelector("#rotate_sides").checked ? 90 : 0;
   let rotate_fb = document.querySelector("#rotate_fb").checked ? 90 : 0;
 
-  // var outer_margin;
   var inner_margin;
 
   switch (arrangement) {
     case "no_margin": {
-      // outer_margin = 0;
       inner_margin = 0;
       break;
     }
 
     case "inner_only": {
-      // outer_margin = 0;
-      inner_margin = cut_width;
-      break;
-    }
-
-    case "inner_outer": {
-      // outer_margin = cut_width;
       inner_margin = cut_width;
       break;
     }
@@ -151,13 +142,14 @@ function draw_results(result) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
 
+  // draw blue background for area used
   ctx.fillStyle = "#4444ff";
   ctx.fillRect(
     x_offset,
     0,
     result.material.w * scale,
     result.material.h * scale
-  ); // draw blue background for area used
+  );
 
   result.packed.forEach((e) => {
     r(e, scale, "#eeeeee", ctx, result.material, x_offset);
@@ -326,10 +318,9 @@ function fit(boxes, material, inner_margin) {
         // |___________________|
         spaces.push({
           x: space.x + box.w + inner_margin,
-          y: space.y, // + first_margin + other_margin,
-          //w: space.w - (box.w + first_margin + other_margin),
+          y: space.y,
           w: space.w - box.w - inner_margin,
-          h: box.h, // + first_margin,
+          h: box.h,
         });
         space.y += box.h + inner_margin;
         space.h -= box.h + inner_margin;
@@ -360,38 +351,35 @@ function fit(boxes, material, inner_margin) {
 // =
 // ======== 3D render
 function render_3d(result, material) {
-  // var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(1, 1200 / 800, 0.1, 1000000);
+  scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(8, 1000 / 800, 0.1, 1000000);
+  // TODO - figure out how to correctly move and aim this f**king camera
+
   var renderer = new THREE.WebGLRenderer({
     canvas: cvs_3d,
     antialias: true,
     logarithmicDepthBuffer: true,
   });
-  const exporter = new STLExporter();
+
   const controls = new OrbitControls(camera, renderer.domElement);
   const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
   directionalLight.position.set(250, 500, 200);
   scene.add(directionalLight);
 
-  renderer.setSize(1200, 800);
-
+  renderer.setSize(1000, 800);
   const texture = new THREE.TextureLoader().load("./wood-texture.jpg");
+  const group = new THREE.Group();
 
   result.packed.forEach((e) => {
-    console.log(e);
-
-    // First part
+    // === First part - lower down, full size
     const first_part_geometry = new THREE.BoxGeometry(e.w, e.h, material.t / 2);
 
     first_part_geometry.translate(e.x + e.w / 2, -e.y - e.h / 2, 0);
     var item_material = new THREE.MeshBasicMaterial({ color: 0x77ff77 });
     var item = new THREE.Mesh(first_part_geometry, item_material);
     scene.add(item);
-    console.log(e.w, e.h, material.t / 2, e.x, -e.y);
-    console.log(first_part_geometry);
 
-    // Second part, to account for rabbet geometry
-
+    // === Second part, size adjusted to account for rabbet geometry
     var second_part = {
       width: e.w,
       height: e.h,
@@ -402,13 +390,11 @@ function render_3d(result, material) {
     let y_translate = 0;
 
     if (e.rabbets) {
-      // rabbets
-      // 0,1,2,3: top, right, bottom, left
+      // rabbets - 0,1,2,3: top, right, bottom, left
 
       if (e.rotation == 0) {
         if (e.rabbets.includes("0")) {
           second_part.height -= material.t;
-          // y_translate += material.t;
         }
         if (e.rabbets.includes("1")) {
           second_part.width -= material.t;
@@ -419,23 +405,26 @@ function render_3d(result, material) {
         }
         if (e.rabbets.includes("3")) {
           second_part.width -= material.t;
-          x_translate = 0; //material.t;
+          x_translate = 0;
         }
       }
-      // if (e.rotation == 90) {
-      //   if (e.rabbets.includes("1")) {
-      //     ctx.fillRect(xs + x_offset, ys, ws, ms);
-      //   }
-      //   if (e.rabbets.includes("2")) {
-      //     ctx.fillRect(xs + ws - ms + x_offset, ys, ms, hs);
-      //   }
-      //   if (e.rabbets.includes("3")) {
-      //     ctx.fillRect(xs + x_offset, ys + hs - ms, ws, ms);
-      //   }
-      //   if (e.rabbets.includes("0")) {
-      //     ctx.fillRect(xs + x_offset, ys, ms, hs);
-      //   }
-      // }
+
+      if (e.rotation == 90) {
+        if (e.rabbets.includes("1")) {
+          second_part.height -= material.t;
+        }
+        if (e.rabbets.includes("2")) {
+          second_part.width -= material.t;
+          x_translate -= material.t / 2;
+        }
+        if (e.rabbets.includes("3")) {
+          second_part.height -= material.t;
+        }
+        if (e.rabbets.includes("0")) {
+          second_part.width -= material.t;
+          x_translate -= material.t / 2;
+        }
+      }
     }
 
     var second_part_geometry = new THREE.BoxGeometry(
@@ -450,16 +439,14 @@ function render_3d(result, material) {
       second_part.thickness
     );
 
-    // e.x + e.w / 2, -e.y - e.h / 2, 0
-
     var item_material = new THREE.MeshBasicMaterial({ map: texture });
     var item = new THREE.Mesh(second_part_geometry, item_material);
-    scene.add(item);
+    group.add(item);
   });
 
-  var test = new THREE.BoxGeometry(100, 100, 10);
+  scene.add(group);
 
-  camera.position.z = 100000;
+  camera.position.z = 10000;
 
   var render = function () {
     requestAnimationFrame(render);
@@ -468,28 +455,22 @@ function render_3d(result, material) {
   };
 
   render();
-
   document.getElementById("save_stl_button").style.visibility = "visible";
 }
 
-function exportASCII() {
+function export_ASCII_STL() {
   const exporter = new STLExporter();
   const result = exporter.parse(scene);
-  saveString(result);
-}
 
-function save(blob) {
+  const nblob = new Blob([result], { type: "text/plain" });
+
   const link = document.createElement("a");
   link.style.display = "none";
   document.body.appendChild(link);
 
-  link.href = URL.createObjectURL(blob);
+  link.href = URL.createObjectURL(nblob);
   link.download = `drawer_design_${Date.now().toString()}.stl`;
   link.click();
-}
-
-function saveString(text, filename) {
-  save(new Blob([text], { type: "text/plain" }), filename);
 }
 
 window.addEventListener("load", function () {
@@ -501,6 +482,6 @@ window.addEventListener("load", function () {
   document
     .querySelector("#save_stl_button")
     .addEventListener("click", function () {
-      exportASCII();
+      export_ASCII_STL();
     });
 });
